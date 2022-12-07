@@ -49,11 +49,8 @@ class Annonce
     #[ORM\ManyToOne(inversedBy: 'annonces')]
     private ?Marque $marque = null;
 
-    #[ORM\OneToMany(mappedBy: 'author', targetEntity: user::class)]
-    private Collection $author;
-
     #[ORM\ManyToOne(inversedBy: 'annonces')]
-    private ?user $auhtor = null;
+    private ?User $auhtor = null;
 
     public function __construct()
     {
@@ -197,42 +194,12 @@ class Annonce
         return $this;
     }
 
-    /**
-     * @return Collection<int, user>
-     */
-    public function getAuthor(): Collection
-    {
-        return $this->author;
-    }
-
-    public function addAuthor(user $author): self
-    {
-        if (!$this->author->contains($author)) {
-            $this->author->add($author);
-            $author->setAuthor($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAuthor(user $author): self
-    {
-        if ($this->author->removeElement($author)) {
-            // set the owning side to null (unless already changed)
-            if ($author->getAuthor() === $this) {
-                $author->setAuthor(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function getAuhtor(): ?user
+    public function getAuhtor(): ?User
     {
         return $this->auhtor;
     }
 
-    public function setAuhtor(?user $auhtor): self
+    public function setAuhtor(?User $auhtor): self
     {
         $this->auhtor = $auhtor;
 
