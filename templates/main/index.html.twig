@@ -6,15 +6,18 @@
 
 <div class="container d-flex flex-wrap gap-3 mt-4">
 
-        {# {% for role in roles %} #}
         {% for annonce in annonces %}
     <div class="container d-flex flex-column align-items-end" style="width: 18rem;">
+
         {% if app.user %}
-        <div class="btn-group-sm" role="group">
-            <a class="btn btn-warning my-1" style=" --bs-btn-font-size: .75rem;" href="{{path('app_annonce_edit', {'id' : annonce.id}) }}">Edit</a>
-            <a class="btn btn-danger my-1"        style="--bs-btn-font-size: .75rem;" href="{{path('app_annonce_delete', {'id' : annonce.id}) }}">Delete</a>
-        {# {% endfor %} #}
-        </div>
+            {% for role in app.user.roles %}
+                {% if role == 'ADMIN' %}
+                    <div class="btn-group-sm" role="group">
+                        <a class="btn btn-warning my-1" style=" --bs-btn-font-size: .75rem;" href="{{path('app_annonce_edit', {'id' : annonce.id}) }}">Edit</a>
+                        <a class="btn btn-danger my-1"        style="--bs-btn-font-size: .75rem;" href="{{path('app_annonce_delete', {'id' : annonce.id}) }}">Delete</a>
+                    </div>
+                {% endif %}
+            {% endfor %}
         {% endif %}
 
         <div class="card" style="width: 18rem;">
