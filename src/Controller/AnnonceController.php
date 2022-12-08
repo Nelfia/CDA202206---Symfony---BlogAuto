@@ -71,38 +71,58 @@ class AnnonceController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_annonce_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Annonce $annonce, AnnonceRepository $annonceRepository, SluggerInterface $slugger): Response
+    public function edit($id, Request $request, Annonce $annonce, AnnonceRepository $annonceRepository, SluggerInterface $slugger): Response
     {
-        $form = $this->createForm(AnnonceType::class, $annonce);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $imageFile = $form->get('imgfile')->getData();
-
-            if ($imageFile) {
-                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                // this is needed to safely include the file name as part of the URL
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
-                try {
-                    $imageFile->move(
-                        $this->getParameter('images_directory'),
-                        $newFilename
-                    );
-                } catch (FileException $e) {
-                    // ... handle exception if something happens during file upload
-                }
-                $annonce->setImgfile($newFilename);
-            }
-            $annonceRepository->save($annonce, true);
-
-            return $this->redirectToRoute('app_annonce_index', [], Response::HTTP_SEE_OTHER);
+        $thisAnnonce = $annonceRepository->find($id);
+        
+        if($thisAnnonce->getIsVisible() == false) {
+            $this->addFlash('Erreur', "Cette annonce n'existe plus !");
+            return $this->redirectToRoute('home');
         }
 
-        return $this->renderForm('annonce/edit.html.twig', [
-            'annonce' => $annonce,
-            'form' => $form,
-        ]);
+        $form = $this->createForm(AnnonceType::class, $annonce);
+        $form->handleRequest($request);
+        $author = $this->getUser();
+
+        if($author == false) {
+            $this->addFlash('Erreur', "Vous devez avoir un compte pour ajouter/éditer une annonce");
+            return $this->redirectToRoute('home');
+        }
+
+        if($author->getRoles() == 'ROLE_ADMIN' or $annonce->getAuthor() == $author) {
+            if ($form->isSubmitted() && $form->isValid()) {
+                $imageFile = $form->get('imgfile')->getData();
+
+                if ($imageFile) {
+                    $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                    // this is needed to safely include the file name as part of the URL
+                    $safeFilename = $slugger->slug($originalFilename);
+                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
+                    try {
+                        $imageFile->move(
+                            $this->getParameter('images_directory'),
+                            $newFilename
+                        );
+                    } catch (FileException $e) {
+                        // ... handle exception if something happens during file upload
+                    }
+                    $annonce->setImgfile($newFilename);
+                }
+                $annonceRepository->save($annonce, true);
+                $this->addFlash('Succès', 'Votre annonce a bien été enregistrée !');
+                if($author->getRoles() == 'ROLE_ADMIN')
+                    return $this->redirectToRoute('app_annonce_index', [], Response::HTTP_SEE_OTHER);
+                return $this->redirectToRoute('home', [], Response::HTTP_SEE_OTHER);
+
+            }
+            return $this->renderForm('annonce/edit.html.twig', [
+                'annonce' => $annonce,
+                'form' => $form,
+            ]);
+        }
+        $this->addFlash('Erreur', 'Vous ne pouvez pas modifier une annonce qui ne vous appartient pas !');
+        return $this->redirectToRoute('home');
+    
     }
 
     #[Route('/{id}', name: 'app_annonce_delete', methods: ['POST'])]
