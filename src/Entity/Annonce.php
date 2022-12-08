@@ -50,12 +50,7 @@ class Annonce
     private ?Marque $marque = null;
 
     #[ORM\ManyToOne(inversedBy: 'annonces')]
-    private ?User $auhtor = null;
-
-    public function __construct()
-    {
-        $this->author = new ArrayCollection();
-    }
+    private ?User $author = null;
 
     public function getId(): ?int
     {
@@ -194,14 +189,14 @@ class Annonce
         return $this;
     }
 
-    public function getAuhtor(): ?User
+    public function getAuthor(): ?User
     {
-        return $this->auhtor;
+        return $this->author;
     }
 
-    public function setAuhtor(?User $auhtor): self
+    public function setAuthor(?User $author): self
     {
-        $this->auhtor = $auhtor;
+        $this->author = $author;
 
         return $this;
     }

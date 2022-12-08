@@ -8,7 +8,7 @@
 
     {% include "components/menu.html.twig" %}
         
-    {% for annonce in annonces %}
+    {% for annonce in marque.annonces %}
         <div class="container d-flex flex-column align-items-end" style="width: 18rem;">
             {% if app.user %}
                 {% for role in app.user.roles %}
@@ -22,7 +22,7 @@
             {% endif %}
 
             <div class="card" style="width: 18rem;">
-                <img class="card-img-top" src=" {{asset('images_directory/' ~ annonce.imgfile )}}" alt="Card image cap">
+                <img class="card-img-top" src=" {{ annonce.imgfile }}" alt="Card image cap">
                 <div class="card-body">
                     <h5 class="card-title">{{ annonce.title }}</h5>
                     <p class="card-text">{{ annonce.description|raw }}</p>

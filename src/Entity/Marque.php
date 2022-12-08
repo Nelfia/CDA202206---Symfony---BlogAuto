@@ -18,7 +18,7 @@ class Marque
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\OneToMany(mappedBy: 'marque', targetEntity: annonce::class)]
+    #[ORM\OneToMany(mappedBy: 'marque', targetEntity: Annonce::class)]
     private Collection $annonces;
 
     public function __construct()
@@ -49,14 +49,14 @@ class Marque
     }
 
     /**
-     * @return Collection<int, annonce>
+     * @return Collection<int, Annonce>
      */
     public function getAnnonces(): Collection
     {
         return $this->annonces;
     }
 
-    public function addAnnonce(annonce $annonce): self
+    public function addAnnonce(Annonce $annonce): self
     {
         if (!$this->annonces->contains($annonce)) {
             $this->annonces->add($annonce);
@@ -66,7 +66,7 @@ class Marque
         return $this;
     }
 
-    public function removeAnnonce(annonce $annonce): self
+    public function removeAnnonce(Annonce $annonce): self
     {
         if ($this->annonces->removeElement($annonce)) {
             // set the owning side to null (unless already changed)
