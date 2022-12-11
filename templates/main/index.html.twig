@@ -4,32 +4,45 @@
 
 {% block body %}
 
-<div class="container d-flex flex-wrap gap-3 mt-4">
+<div class="container mt-4">
+    <h2 class="text-center">La voiture de vos rêves est à portée de clic... Saisissez-là !</h2>
 
-        {% for annonce in annonces %}
-    <div class="container d-flex flex-column align-items-end" style="width: 18rem;">
+    {% include "components/menu.html.twig" %}
 
-        {% if app.user %}
-            {% for role in app.user.roles %}
-                {% if role == 'ADMIN' %}
-                    <div class="btn-group-sm" role="group">
-                        <a class="btn btn-warning my-1" style=" --bs-btn-font-size: .75rem;" href="{{path('app_annonce_edit', {'id' : annonce.id}) }}">Edit</a>
-                        <a class="btn btn-danger my-1"        style="--bs-btn-font-size: .75rem;" href="{{path('app_annonce_delete', {'id' : annonce.id}) }}">Delete</a>
-                    </div>
-                {% endif %}
-            {% endfor %}
-        {% endif %}
-
-        <div class="card" style="width: 18rem;">
-            <img class="card-img-top" src=" {{ annonce.imgfile }}" alt="Card image cap">
-            <div class="card-body">
-                <h5 class="card-title">{{ annonce.title }}</h5>
-                <p class="card-text">{{ annonce.description }}</p>
-                <a href="{{path('app_annonce_show', {'id' : annonce.id}) }}" class="btn btn-primary" style="--bs-btn-bg: #339af0;">Détails</a>
-            </div>
-        </div>
+    {% if app.user %}
+    <div class="d-flex justify-content-center mt-2"><a type="button" class="btn btn-success btn-sm" href="/annonce/new">Ajouter une annonce</a></div>
+    {% if is_granted('ROLE_ADMIN') %}
+    <div class="d-flex justify-content-center gap-2 mt-2">
+        <a href="/annonce" type="button" class="btn btn-warning btn-sm">Liste des annonces</a>
+        <a href="/admin/marque" type="button" class="btn btn-warning btn-sm">Liste des marques</a>
     </div>
-        {% endfor %}
+    {% endif %}
+    {% endif %}
 
+    <div class="container d-flex flex-wrap gap-3 mt-4">
+        {% for annonce in annonces %}
+            <div class="container d-flex flex-column align-items-end" style="width: 18rem;">
+                {% if app.user %}
+                    {% for role in app.user.roles %}
+                        {% if role == 'ROLE_ADMIN' %}
+                            <div class="btn-group-sm" role="group">
+                                <a class="btn btn-warning my-1" style=" --bs-btn-font-size: .75rem;" href="{{path('app_annonce_edit', {'id' : annonce.id}) }}">Edit</a>
+                                <a class="btn btn-danger my-1" style="--bs-btn-font-size: .75rem;" href="{{path('app_annonce_delete', {'id' : annonce.id}) }}">Delete</a>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+                <div class="card" style="width: 18rem;">
+                    <img class="card-img-top" src=" {{asset('images_directory/' ~ annonce.imgfile )}}" alt="Card image cap"/>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ annonce.title|u.truncate(20, '...')}}</h5>
+                        <p class="card-text">{{ annonce.description|u.truncate(30,'...')|raw }}</p>
+                        <a href="{{path('app_annonce_show', {'id' : annonce.id}) }}" class="btn btn-primary" >Détails</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}

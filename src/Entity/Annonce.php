@@ -50,11 +50,14 @@ class Annonce
     private ?Marque $marque = null;
 
     #[ORM\ManyToOne(inversedBy: 'annonces')]
-    private ?User $auhtor = null;
+    private ?User $author = null;
+
+    #[ORM\OneToMany(mappedBy: 'usersFav', targetEntity: Favoris::class)]
+    private Collection $favoris;
 
     public function __construct()
     {
-        $this->author = new ArrayCollection();
+        $this->favoris = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -170,7 +173,7 @@ class Annonce
         return $this;
     }
 
-    public function isIsVisible(): ?bool
+    public function getIsVisible(): ?bool
     {
         return $this->is_visible;
     }
@@ -194,15 +197,54 @@ class Annonce
         return $this;
     }
 
-    public function getAuhtor(): ?User
+    public function getAuthor(): ?User
     {
-        return $this->auhtor;
+        return $this->author;
     }
 
-    public function setAuhtor(?User $auhtor): self
+    public function setAuthor(?User $author): self
     {
-        $this->auhtor = $auhtor;
+        $this->author = $author;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Favoris>
+     */
+    public function getFavoris(): Collection
+    {
+        return $this->favoris;
+    }
+
+    public function addFavori(Favoris $favori): self
+    {
+        if (!$this->favoris->contains($favori)) {
+            $this->favoris->add($favori);
+            $favori->setUsersFav($this);
+        }
+        return $this;
+    }
+
+    public function removeFavori(Favoris $favori): self
+    {
+        if ($this->favoris->removeElement($favori)) {
+            // set the owning side to null (unless already changed)
+            if ($favori->getUsersFav() === $this) {
+                $favori->setUsersFav(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @param User $user
+     * @return boolean
+     */
+    public function isUserFav(User $user) : bool {
+        foreach($this->favoris as $favori) {
+            if($favori->getUser() == $user) return true;
+        }
+        return false;
     }
 }
