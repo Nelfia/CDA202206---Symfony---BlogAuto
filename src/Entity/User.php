@@ -34,9 +34,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'author', targetEntity: Annonce::class)]
     private Collection $annonces;
 
+    #[ORM\OneToMany(mappedBy: 'annonceFav', targetEntity: Favoris::class)]
+    private Collection $favoris;
+
     public function __construct()
     {
         $this->annonces = new ArrayCollection();
+        $this->favoris = new ArrayCollection();
     }
 
     public function __toString()
@@ -138,6 +142,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($annonce->getAuthor() === $this) {
                 $annonce->setAuthor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Favoris>
+     */
+    public function getFavoris(): Collection
+    {
+        return $this->favoris;
+    }
+
+    public function addFavori(Favoris $favori): self
+    {
+        if (!$this->favoris->contains($favori)) {
+            $this->favoris->add($favori);
+            $favori->setAnnonceFav($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFavori(Favoris $favori): self
+    {
+        if ($this->favoris->removeElement($favori)) {
+            // set the owning side to null (unless already changed)
+            if ($favori->getAnnonceFav() === $this) {
+                $favori->setAnnonceFav(null);
             }
         }
 

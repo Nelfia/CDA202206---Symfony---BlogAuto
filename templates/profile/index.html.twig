@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello ProfileController!{% endblock %}
+
+{% block body %}
+        
+    <div class="d-flex justify-content-center flex-wrap mt-4 gap-2">
+        {% for annonce in annonces %}
+            <div class="card" style="width: 18rem;">
+                <img class="card-img-top" src=" {{asset('images_directory/' ~ annonce.imgfile )}}" alt="Card image cap"/>
+                <div class="card-body">
+                    <h5 class="card-title">{{ annonce.title|u.truncate(20, '...')}}</h5>
+                    <p class="card-text">{{ annonce.description|u.truncate(30,'...')|raw }}</p>
+                    <a href="{{path('app_annonce_show', {'id' : annonce.id}) }}" class="btn btn-primary" >Détails</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

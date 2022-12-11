@@ -52,6 +52,14 @@ class Annonce
     #[ORM\ManyToOne(inversedBy: 'annonces')]
     private ?User $author = null;
 
+    #[ORM\OneToMany(mappedBy: 'usersFav', targetEntity: Favoris::class)]
+    private Collection $favoris;
+
+    public function __construct()
+    {
+        $this->favoris = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -199,5 +207,44 @@ class Annonce
         $this->author = $author;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Favoris>
+     */
+    public function getFavoris(): Collection
+    {
+        return $this->favoris;
+    }
+
+    public function addFavori(Favoris $favori): self
+    {
+        if (!$this->favoris->contains($favori)) {
+            $this->favoris->add($favori);
+            $favori->setUsersFav($this);
+        }
+        return $this;
+    }
+
+    public function removeFavori(Favoris $favori): self
+    {
+        if ($this->favoris->removeElement($favori)) {
+            // set the owning side to null (unless already changed)
+            if ($favori->getUsersFav() === $this) {
+                $favori->setUsersFav(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @param User $user
+     * @return boolean
+     */
+    public function isUserFav(User $user) : bool {
+        foreach($this->favoris as $favori) {
+            if($favori->getUser() == $user) return true;
+        }
+        return false;
     }
 }

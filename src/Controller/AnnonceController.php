@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Annonce;
+use App\Entity\Favoris;
 use App\Form\AnnonceType;
 use App\Repository\AnnonceRepository;
+use App\Repository\FavorisRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
@@ -89,7 +91,7 @@ class AnnonceController extends AbstractController
             return $this->redirectToRoute('home');
         }
 
-        if($author->getRoles() == 'ROLE_ADMIN' or $annonce->getAuthor() == $author) {
+        if($this->container->get('security.authorization_checker')->IsGranted('ROLE_ADMIN') or $annonce->getAuthor() == $author) {
             if ($form->isSubmitted() && $form->isValid()) {
                 $imageFile = $form->get('imgfile')->getData();
 
@@ -125,13 +127,49 @@ class AnnonceController extends AbstractController
     
     }
 
-    #[Route('/{id}', name: 'app_annonce_delete', methods: ['POST'])]
-    public function delete(Request $request, Annonce $annonce, AnnonceRepository $annonceRepository): Response
+    #[Route('/{id}/fav', name: 'app_annonce_fav', methods: ['GET', 'POST'])]
+    public function favUser(Annonce $annonce, FavorisRepository $favorisRepository): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$annonce->getId(), $request->request->get('_token'))) {
-            $annonceRepository->remove($annonce, true);
+        $user = $this->getUser();
+        if(!$user) return $this->redirectToRoute('app_login');
+
+        if($annonce->isUserFav($user)){
+            $signedUp = $favorisRepository->findOneBy([
+                'annonces' => $annonce,
+                'users' => $user
+            ]);
+            $favorisRepository->remove($signedUp);
+            $this->addFlash('Succès', "Cette annonce n'est plus dans vos favoris");
+            return $this->redirectToRoute('home');
         }
 
-        return $this->redirectToRoute('app_annonce_index', [], Response::HTTP_SEE_OTHER);
+        $newFav = new Favoris();
+        $newFav->setAnnonceFav($user)->setUsersFav($annonce);
+
+        $favorisRepository->save($newFav);
+        $this->addFlash('Succès', "Cette annonce est désormaisdans vos favoris !");
+
+        return $this->redirectToRoute('home');
+    
+    }
+
+    #[Route('/{id}', name: 'app_annonce_delete', methods: ['GET', 'POST'])]
+    public function delete(Annonce $annonce, AnnonceRepository $annonceRepository): Response
+    {
+        $author = $this->getUser();
+        if(!$author){
+            $this->addFlash('Erreur', 'Vous devez avoir un compte pour pouvoir supprimer une annonce');
+            return $this->redirectToRoute('home');
+        }
+        if($this->container->get('security.authorization_checker')->IsGranted('ROLE_ADMIN') or $annonce->getAuthor() == $author) {
+            $annonce->setIsVisible(false);
+            $annonceRepository->save($annonce);
+        } else {
+            $this->addFlash('Erreur', "Vous n'êtes pas l'auteur de cette annonce !");
+            return $this->redirectToRoute('app_annonce_show', ['id'=> $annonce->getId()]);
+        }
+        $this->addFlash('Succès', 'Votre annonce a bien été supprimée !');
+
+        return $this->redirectToRoute('home', [], Response::HTTP_SEE_OTHER);
     }
 }
