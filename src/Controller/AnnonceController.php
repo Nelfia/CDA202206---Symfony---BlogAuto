@@ -3,10 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Annonce;
-use App\Entity\Favoris;
+use App\Entity\AnnonceListByUser;
 use App\Form\AnnonceType;
+use App\Repository\AnnonceListByUserRepository;
 use App\Repository\AnnonceRepository;
-use App\Repository\FavorisRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
@@ -127,32 +127,6 @@ class AnnonceController extends AbstractController
     
     }
 
-    #[Route('/{id}/fav', name: 'app_annonce_fav', methods: ['GET', 'POST'])]
-    public function favUser(Annonce $annonce, FavorisRepository $favorisRepository): Response
-    {
-        $user = $this->getUser();
-        if(!$user) return $this->redirectToRoute('app_login');
-
-        if($annonce->isUserFav($user)){
-            $signedUp = $favorisRepository->findOneBy([
-                'annonces' => $annonce,
-                'users' => $user
-            ]);
-            $favorisRepository->remove($signedUp);
-            $this->addFlash('Succès', "Cette annonce n'est plus dans vos favoris");
-            return $this->redirectToRoute('home');
-        }
-
-        $newFav = new Favoris();
-        $newFav->setAnnonceFav($user)->setUsersFav($annonce);
-
-        $favorisRepository->save($newFav);
-        $this->addFlash('Succès', "Cette annonce est désormaisdans vos favoris !");
-
-        return $this->redirectToRoute('home');
-    
-    }
-
     #[Route('/{id}', name: 'app_annonce_delete', methods: ['GET', 'POST'])]
     public function delete(Annonce $annonce, AnnonceRepository $annonceRepository): Response
     {
@@ -172,4 +146,33 @@ class AnnonceController extends AbstractController
 
         return $this->redirectToRoute('home', [], Response::HTTP_SEE_OTHER);
     }
+
+
+    #[Route('/{id}/fav', name: 'app_annonce_fav', methods: ['GET', 'POST'])]
+    public function favUserAnnonces(Annonce $annonce, AnnonceListByUserRepository $annonceListByUserRepository): Response
+    {
+       $user = $this->getUser();
+       if(!$user) return $this->redirectToRoute('app_login');
+
+        if($annonce->isUserFav($user)){
+            $signedUp = $annonceListByUserRepository->findOneBy([
+                'annonces' => $annonce,
+                'users' => $user
+            ]);
+            $annonceListByUserRepository->remove($signedUp);
+            $this->addFlash('Erreur', "Cette annonce n'est plus dans vos favoris !");
+            return $this->redirectToRoute('home');
+        }
+
+        $newFav = new AnnonceListByUser();
+        $newFav ->setAnnonces($annonce)
+                ->setUsers($user);
+
+        $annonceListByUserRepository->save($newFav);
+        $this->addFlash('Succès', "Cette annonce est désormais dans vos favoris !");
+
+        return $this->redirectToRoute('home');
+    }
+
+
 }

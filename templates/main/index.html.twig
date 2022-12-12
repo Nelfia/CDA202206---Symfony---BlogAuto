@@ -10,13 +10,16 @@
     {% include "components/menu.html.twig" %}
 
     {% if app.user %}
-    <div class="d-flex justify-content-center mt-2"><a type="button" class="btn btn-success btn-sm" href="/annonce/new">Ajouter une annonce</a></div>
-    {% if is_granted('ROLE_ADMIN') %}
-    <div class="d-flex justify-content-center gap-2 mt-2">
-        <a href="/annonce" type="button" class="btn btn-warning btn-sm">Liste des annonces</a>
-        <a href="/admin/marque" type="button" class="btn btn-warning btn-sm">Liste des marques</a>
-    </div>
-    {% endif %}
+        <div class="d-flex justify-content-center mt-2">
+            <a type="button" class="btn btn-success btn-sm" href="/annonce/new">Ajouter une annonce</a>
+        </div>
+        
+        {% if is_granted('ROLE_ADMIN') %}
+            <div class="d-flex justify-content-center gap-2 mt-2">
+                <a href="/annonce" type="button" class="btn btn-warning btn-sm">Liste des annonces</a>
+                <a href="/admin/marque" type="button" class="btn btn-warning btn-sm">Liste des marques</a>
+            </div>
+        {% endif %}
     {% endif %}
 
     <div class="container d-flex flex-wrap gap-3 mt-4">
@@ -34,11 +37,21 @@
                 {% endif %}
 
                 <div class="card" style="width: 18rem;">
-                    <img class="card-img-top" src=" {{asset('images_directory/' ~ annonce.imgfile )}}" alt="Card image cap"/>
+                    {# <img class="card-img-top" src=" {{asset('images_directory/' ~ annonce.imgfile )}}" alt="Card image cap"/> #}
+                    <img class="card-img-top" src="{{ annonce.imgfile }}" alt="Card image cap"/>
                     <div class="card-body">
                         <h5 class="card-title">{{ annonce.title|u.truncate(20, '...')}}</h5>
                         <p class="card-text">{{ annonce.description|u.truncate(30,'...')|raw }}</p>
                         <a href="{{path('app_annonce_show', {'id' : annonce.id}) }}" class="btn btn-primary" >Détails</a>
+                        {% if app.user %}
+                            <a type="button" class="btn btn-outline-light w-30" href="{{path('app_annonce_fav', {'id' : annonce.id}) }}">
+                                {% if annonce.isUserFav(app.user) %}
+                                    <img class="favoris" src="/images_directory/etoile-pleine.png" alt="etoile pleine">
+                                {% else %}
+                                    <img class="favoris" src="/images_directory/etoile-vide.png" alt="etoile vide">
+                                {% endif %}
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>

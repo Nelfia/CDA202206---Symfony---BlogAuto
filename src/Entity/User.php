@@ -34,13 +34,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'author', targetEntity: Annonce::class)]
     private Collection $annonces;
 
-    #[ORM\OneToMany(mappedBy: 'annonceFav', targetEntity: Favoris::class)]
-    private Collection $favoris;
+    #[ORM\OneToMany(mappedBy: 'users', targetEntity: AnnonceListByUser::class)]
+    private Collection $annoncesFav;
 
     public function __construct()
     {
         $this->annonces = new ArrayCollection();
-        $this->favoris = new ArrayCollection();
+        $this->annoncesFav = new ArrayCollection();
     }
 
     public function __toString()
@@ -149,32 +149,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Favoris>
+     * @return Collection<int, AnnonceListByUser>
      */
-    public function getFavoris(): Collection
+    public function getAnnoncesFav(): Collection
     {
-        return $this->favoris;
+        return $this->annoncesFav;
     }
 
-    public function addFavori(Favoris $favori): self
+    public function addAnnoncesFav(AnnonceListByUser $annoncesFav): self
     {
-        if (!$this->favoris->contains($favori)) {
-            $this->favoris->add($favori);
-            $favori->setAnnonceFav($this);
+        if (!$this->annoncesFav->contains($annoncesFav)) {
+            $this->annoncesFav->add($annoncesFav);
+            $annoncesFav->setUsers($this);
         }
 
         return $this;
     }
 
-    public function removeFavori(Favoris $favori): self
+    public function removeAnnoncesFav(AnnonceListByUser $annoncesFav): self
     {
-        if ($this->favoris->removeElement($favori)) {
+        if ($this->annoncesFav->removeElement($annoncesFav)) {
             // set the owning side to null (unless already changed)
-            if ($favori->getAnnonceFav() === $this) {
-                $favori->setAnnonceFav(null);
+            if ($annoncesFav->getUsers() === $this) {
+                $annoncesFav->setUsers(null);
             }
         }
 
         return $this;
     }
+
 }

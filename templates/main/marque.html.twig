@@ -23,11 +23,19 @@
                     {% endif %}
 
                     <div class="card" style="width: 18rem;">
-                        <img class="card-img-top" src="{{asset('images_directory/' ~ annonce.imgfile )}}" alt="Card image cap">
+                        {# <img class="card-img-top" src="{{asset('images_directory/' ~ annonce.imgfile )}}" alt="Card image cap"> #}
+                        <img class="card-img-top" src="{{ annonce.imgfile }}" alt="Card image cap"/>
                         <div class="card-body">
                             <h5 class="card-title">{{ annonce.title }}</h5>
                             <p class="card-text">{{ annonce.description|raw }}</p>
                             <a href="{{path('app_annonce_show', {'id' : annonce.id}) }}" class="btn btn-primary" style="--bs-btn-bg: #339af0;">Détails</a>
+                            <a type="button" class="btn btn-outline-light w-30" href="{{path('app_annonce_fav', {'id' : annonce.id}) }}">
+                            {% if annonce.isUserFav(app.user) %}
+                                <img class="favoris" src="/images_directory/etoile-pleine.png" alt="etoile pleine">
+                            {% else %}
+                                <img class="favoris" src="/images_directory/etoile-vide.png" alt="etoile vide">
+                            {% endif %}
+                        </a>
                         </div>
                     </div>
                 </div>

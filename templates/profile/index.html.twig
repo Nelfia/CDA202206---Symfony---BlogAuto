@@ -4,14 +4,38 @@
 
 {% block body %}
         
+    <h2 class="mx-2 mt-2">Mes annonces</h2>
     <div class="d-flex justify-content-center flex-wrap mt-4 gap-2">
         {% for annonce in annonces %}
             <div class="card" style="width: 18rem;">
-                <img class="card-img-top" src=" {{asset('images_directory/' ~ annonce.imgfile )}}" alt="Card image cap"/>
+                {# <img class="card-img-top" src=" {{asset('images_directory/' ~ annonce.imgfile )}}" alt="Card image cap"/> #}
+                <img class="card-img-top" src="{{ annonce.imgfile }}" alt="Card image cap"/>
                 <div class="card-body">
                     <h5 class="card-title">{{ annonce.title|u.truncate(20, '...')}}</h5>
                     <p class="card-text">{{ annonce.description|u.truncate(30,'...')|raw }}</p>
                     <a href="{{path('app_annonce_show', {'id' : annonce.id}) }}" class="btn btn-primary" >Détails</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <h2 class="mx-2 mt-2">Mes favoris</h2>
+    <div class="d-flex justify-content-center flex-wrap mt-4 gap-2">
+        {% for annonce in annoncesFav %}
+            <div class="card" style="width: 18rem;">
+                {# <img class="card-img-top" src=" {{asset('images_directory/' ~ annonce.annonces.imgfile )}}" alt="Card image cap"/> #}
+                <img class="card-img-top" src="{{ annonce.annonces.imgfile }}" alt="Card image cap"/>
+                <div class="card-body">
+                    <h5 class="card-title">{{ annonce.annonces.title|u.truncate(20, '...')}}</h5>
+                    <p class="card-text">{{ annonce.annonces.description|u.truncate(30,'...')|raw }}</p>
+                    <a href="{{path('app_annonce_show', {'id' : annonce.annonces.id}) }}" class="btn btn-primary" >Détails</a>
+                    <a type="button" class="btn btn-outline-light w-30" href="{{path('app_annonce_fav', {'id' : annonce.annonces.id}) }}">
+                        {% if annonce.annonces.isUserFav(app.user) %}
+                            <img class="favoris" src="/images_directory/etoile-pleine.png" alt="etoile pleine">
+                        {% else %}
+                            <img class="favoris" src="/images_directory/etoile-vide.png" alt="etoile vide">
+                        {% endif %}
+                    </a>
                 </div>
             </div>
         {% endfor %}

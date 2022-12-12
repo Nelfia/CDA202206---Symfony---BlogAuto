@@ -31,6 +31,10 @@ class Marque
         return $this->name;
     }
 
+    public function setId(?int $id): ?int
+    {
+        return $this->id = $id;
+    }
     public function getId(): ?int
     {
         return $this->id;
@@ -44,7 +48,6 @@ class Marque
     public function setName(string $name): self
     {
         $this->name = $name;
-
         return $this;
     }
 
@@ -74,7 +77,6 @@ class Marque
                 $annonce->setMarque(null);
             }
         }
-
         return $this;
     }
 }

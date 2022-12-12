@@ -52,12 +52,12 @@ class Annonce
     #[ORM\ManyToOne(inversedBy: 'annonces')]
     private ?User $author = null;
 
-    #[ORM\OneToMany(mappedBy: 'usersFav', targetEntity: Favoris::class)]
-    private Collection $favoris;
+    #[ORM\OneToMany(mappedBy: 'annonces', targetEntity: AnnonceListByUser::class)]
+    private Collection $usersFav;
 
     public function __construct()
     {
-        $this->favoris = new ArrayCollection();
+        $this->usersFav = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -210,41 +210,45 @@ class Annonce
     }
 
     /**
-     * @return Collection<int, Favoris>
-     */
-    public function getFavoris(): Collection
-    {
-        return $this->favoris;
-    }
-
-    public function addFavori(Favoris $favori): self
-    {
-        if (!$this->favoris->contains($favori)) {
-            $this->favoris->add($favori);
-            $favori->setUsersFav($this);
-        }
-        return $this;
-    }
-
-    public function removeFavori(Favoris $favori): self
-    {
-        if ($this->favoris->removeElement($favori)) {
-            // set the owning side to null (unless already changed)
-            if ($favori->getUsersFav() === $this) {
-                $favori->setUsersFav(null);
-            }
-        }
-        return $this;
-    }
-
-    /**
+     *
      * @param User $user
      * @return boolean
      */
-    public function isUserFav(User $user) : bool {
-        foreach($this->favoris as $favori) {
-            if($favori->getUser() == $user) return true;
+    public function isUserFav(User $user) : bool
+    {
+        foreach($this->usersFav as $usersFav) {
+            if($usersFav->getUsers() === $user) return true;
         }
         return false;
     }
+
+    /**
+     * @return Collection<int, AnnonceListByUser>
+     */
+    public function getUsersFav(): Collection
+    {
+        return $this->usersFav;
+    }
+
+    public function addUsersFav(AnnonceListByUser $usersFav): self
+    {
+        if (!$this->usersFav->contains($usersFav)) {
+            $this->usersFav->add($usersFav);
+            $usersFav->setAnnonces($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUsersFav(AnnonceListByUser $usersFav): self
+    {
+        if ($this->usersFav->removeElement($usersFav)) {
+            // set the owning side to null (unless already changed)
+            if ($usersFav->getAnnonces() === $this) {
+                $usersFav->setAnnonces(null);
+            }
+        }
+
+        return $this;
+    }    
 }

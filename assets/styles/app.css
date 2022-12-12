@@ -2,7 +2,14 @@ body {
     background-color: lightgray;
 }
 
-img {
+.card-img-top {
     object-fit: cover !important;
     height: 170px !important;
+}
+
+.favoris {
+    height: 30px !important;
+    position: absolute;
+    top: 1vw;
+    left: 1vw;
 }
